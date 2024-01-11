@@ -30,19 +30,19 @@ const Home = () => {
   const [pieChartData, setPieChartData] = useState([]);
   const getData = async () => {
     const tableData = await axios.get(
-      `http://localhost:4500/api/get-data?pagination=${pagination}&search=${search}&month=${month}`
+      `https://roxiler-backend-hx6o.onrender.com/api/get-data?pagination=${pagination}&search=${search}&month=${month}`
     );
     setTableData(tableData.data);
     const statsResponse = await axios.get(
-      `http://localhost:4500/api/get-stats?month=${month}`
+      `https://roxiler-backend-hx6o.onrender.com/api/get-stats?month=${month}`
     );
     setStats(statsResponse.data[0]);
     const barChartResponse = await axios.get(
-      `http://localhost:4500/api/get-barchart-data?month=${month}`
+      `https://roxiler-backend-hx6o.onrender.com/api/get-barchart-data?month=${month}`
     );
     setBarChartData(barChartResponse.data);
     const pieChartResponse = await axios.get(
-      `http://localhost:4500/api/get-categories?month=${month}`
+      `https://roxiler-backend-hx6o.onrender.com/api/get-categories?month=${month}`
     );
     setPieChartData(pieChartResponse.data);
   };
