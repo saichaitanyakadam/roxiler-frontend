@@ -23,33 +23,45 @@ const months = {
 const Home = () => {
   const [search, setSearch] = useState("");
   const [month, setMonth] = useState(3);
-  const [pagination, setPagination] = useState(0);
-  const [tableData, setTableData] = useState([]);
-  const [stats, setStats] = useState({});
-  const [barChartData, setBarChartData] = useState([]);
-  const [pieChartData, setPieChartData] = useState([]);
-  const getData = async () => {
-    const tableData = await axios.get(
-      `https://roxiler-backend-hx6o.onrender.com/api/get-data?pagination=${pagination}&search=${search}&month=${month}`
-    );
-    setTableData(tableData.data);
-    const statsResponse = await axios.get(
-      `https://roxiler-backend-hx6o.onrender.com/api/get-stats?month=${month}`
-    );
-    setStats(statsResponse.data[0]);
-    const barChartResponse = await axios.get(
-      `https://roxiler-backend-hx6o.onrender.com/api/get-barchart-data?month=${month}`
-    );
-    setBarChartData(barChartResponse.data);
-    const pieChartResponse = await axios.get(
-      `https://roxiler-backend-hx6o.onrender.com/api/get-categories?month=${month}`
-    );
-    setPieChartData(pieChartResponse.data);
-  };
+  const [pagination] = useState(0);
+  const [data, setData] = useState({
+    tableData: [],
+    stats: {},
+    barChartData: [],
+    pieChartData: [],
+  });
+  // const [tableData, setTableData] = useState([]);
+  // const [stats, setStats] = useState({});
+  // const [barChartData, setBarChartData] = useState([]);
+  // const [pieChartData, setPieChartData] = useState([]);
 
   useEffect(() => {
+    const getData = async () => {
+      const tableData = await axios.get(
+        `https://roxiler-backend-hx6o.onrender.com/api/get-data?pagination=${pagination}&search=${search}&month=${month}`
+      );
+      // setTableData(tableData.data);
+      const statsResponse = await axios.get(
+        `https://roxiler-backend-hx6o.onrender.com/api/get-stats?month=${month}`
+      );
+      // setStats(statsResponse.data[0]);
+      const barChartResponse = await axios.get(
+        `https://roxiler-backend-hx6o.onrender.com/api/get-barchart-data?month=${month}`
+      );
+      // setBarChartData(barChartResponse.data);
+      const pieChartResponse = await axios.get(
+        `https://roxiler-backend-hx6o.onrender.com/api/get-categories?month=${month}`
+      );
+      // setPieChartData(pieChartResponse.data);
+      setData({
+        tableData: tableData.data,
+        stats: statsResponse.data[0],
+        barChartData: barChartResponse.data,
+        pieChartData: pieChartResponse.data,
+      });
+    };
     getData();
-  }, [month]);
+  }, [search, month, pagination]);
 
   return (
     <div className="min-h-screen bg-sky-100 flex flex-col items-center p-5 gap-4 overflow-x-hidden">
@@ -66,9 +78,6 @@ const Home = () => {
             onChange={(event) => {
               setSearch(event.target.value);
             }}
-            onBlur={() => {
-              getData();
-            }}
           />
         </div>
         <div className="bg-yellow-300 rounded-2xl h-[40px] w-[40%] lg:w-[20%]">
@@ -77,7 +86,6 @@ const Home = () => {
             value={month}
             onChange={(event) => {
               setMonth(event.target.value);
-              getData();
             }}
           >
             <option value={1}>Jan</option>
@@ -95,11 +103,11 @@ const Home = () => {
           </select>
         </div>
       </div>
-      <DataTable tableData={tableData} />
-      <Statistics month={months[month]} stats={stats} />
-      <BarChart barChartData={barChartData} />
+      <DataTable tableData={data.tableData} />
+      <Statistics month={months[month]} stats={data.stats} />
+      <BarChart barChartData={data.barChartData} />
       <hr className="border-2 border-gray-500 w-full my-2" />
-      <PieChart pieChartData={pieChartData} />
+      <PieChart pieChartData={data.pieChartData} />
     </div>
   );
 };
