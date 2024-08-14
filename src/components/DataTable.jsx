@@ -1,8 +1,14 @@
-import React from "react";
-
-const DataTable = ({ tableData }) => {
+const DataTable = ({ tableData, pagination, setPagination }) => {
+  const handlePevious = () => {
+    setPagination((prev) => (prev > 0 ? prev - 1 : prev));
+  };
+  const handleNext = () => {
+    setPagination((prev) =>
+      prev < Math.floor(tableData.length / 10) ? prev + 1 : prev
+    );
+  };
   return (
-    <div className="w-[90%] bg-yellow-300 overflow-x-auto">
+    <div className="w-[90%] bg-primary overflow-x-auto space-y-3 p-2">
       <table className="w-full border-collapse">
         <thead className="w-full">
           <tr>
@@ -16,27 +22,49 @@ const DataTable = ({ tableData }) => {
           </tr>
         </thead>
         <tbody>
-          {tableData.map((item) => (
-            <tr key={item.id}>
-              <td className="border-2 border-slate-500 pl-2">{item.id}</td>
-              <td className="border-2 border-slate-500 pl-2">{item.title}</td>
-              <td className="border-2 border-slate-500 pl-2">
-                {item.description}
-              </td>
-              <td className="border-2 border-slate-500 pl-2">{item.price}</td>
-              <td className="border-2 border-slate-500 pl-2">
-                {item.category}
-              </td>
-              <td className="border-2 border-slate-500 pl-2">
-                {item.sold ? "Sold" : "Unsold   "}
-              </td>
-              <td className="border-2 border-slate-500 pl-2">
-                <img src={item.image} alt="itemImage" />
-              </td>
-            </tr>
-          ))}
+          {tableData
+            .slice(pagination * 10, pagination * 10 + 10)
+            .map((item) => (
+              <tr key={item.id}>
+                <td className="border-2 border-slate-500 pl-2">{item.id}</td>
+                <td className="border-2 border-slate-500 pl-2">{item.title}</td>
+                <td className="border-2 border-slate-500 pl-2">
+                  {item.description}
+                </td>
+                <td className="border-2 border-slate-500 pl-2">{item.price}</td>
+                <td className="border-2 border-slate-500 pl-2">
+                  {item.category}
+                </td>
+                <td className="border-2 border-slate-500 pl-2">
+                  {item.sold ? "Sold" : "Unsold   "}
+                </td>
+                <td className="border-2 border-slate-500 pl-2">
+                  <img src={item.image} alt="itemImage" className="back" />
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
+      <div className="flex justify-between">
+        <p>Page No: {pagination + 1}</p>
+        <div className="space-x-2">
+          <button
+            type="button"
+            onClick={handlePevious}
+            className="bg-red-300 px-2 py-1 rounded text-white"
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            className="bg-red-300 px-2 py-1 rounded text-white"
+          >
+            Next
+          </button>
+        </div>
+        <p>Per Page: {10}</p>
+      </div>
     </div>
   );
 };

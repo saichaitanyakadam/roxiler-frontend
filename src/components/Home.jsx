@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import Statistics from "./Statistics";
 import axios from "axios";
 import BarChart from "./BarChart";
 import PieChart from "./PieChart.jsx";
+import useDebounce from "../hooks/useDebounce.jsx";
 
 const months = {
   1: "Jan",
@@ -22,65 +23,56 @@ const months = {
 
 const Home = () => {
   const [search, setSearch] = useState("");
+  const debounceValue = useDebounce(search);
+
   const [month, setMonth] = useState(3);
-  const [pagination] = useState(0);
-  const [data, setData] = useState({
-    tableData: [],
-    stats: {},
-    barChartData: [],
-    pieChartData: [],
-  });
-  // const [tableData, setTableData] = useState([]);
-  // const [stats, setStats] = useState({});
-  // const [barChartData, setBarChartData] = useState([]);
-  // const [pieChartData, setPieChartData] = useState([]);
+  const [pagination, setPagination] = useState(0);
+  const [tableData, setTableData] = useState([]);
+  const [statsData, setStatsData] = useState({});
+  const [barChartData, setBarChartData] = useState([]);
+  const [pieChartData, setPieChartData] = useState([]);
+
+  const getData = useCallback(async () => {
+    const { data } = await axios.get(
+      `http://localhost:4500/api/combined-data?month=${month}`
+    );
+    setStatsData(data.statsData[0]);
+    setBarChartData(data.barChartData);
+    setPieChartData(data.pieChartData);
+  }, [month]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   useEffect(() => {
     const getData = async () => {
-      const tableData = await axios.get(
-        `https://roxiler-backend-hx6o.onrender.com/api/get-data?pagination=${pagination}&search=${search}&month=${month}`
+      const { data } = await axios.get(
+        `http://localhost:4500/api/get-data?month=${month}&pagination=${pagination}&search=${debounceValue}`
       );
-      // setTableData(tableData.data);
-      const statsResponse = await axios.get(
-        `https://roxiler-backend-hx6o.onrender.com/api/get-stats?month=${month}`
-      );
-      // setStats(statsResponse.data[0]);
-      const barChartResponse = await axios.get(
-        `https://roxiler-backend-hx6o.onrender.com/api/get-barchart-data?month=${month}`
-      );
-      // setBarChartData(barChartResponse.data);
-      const pieChartResponse = await axios.get(
-        `https://roxiler-backend-hx6o.onrender.com/api/get-categories?month=${month}`
-      );
-      // setPieChartData(pieChartResponse.data);
-      setData({
-        tableData: tableData.data,
-        stats: statsResponse.data[0],
-        barChartData: barChartResponse.data,
-        pieChartData: pieChartResponse.data,
-      });
+      setTableData(data);
     };
     getData();
-  }, [search, month, pagination]);
+  }, [month, debounceValue, pagination]);
 
   return (
-    <div className="min-h-screen bg-sky-100 flex flex-col items-center p-5 gap-4 overflow-x-hidden">
+    <div className="min-h-screen bg-sky-100 flex flex-col items-center p-10 gap-4 overflow-x-hidden">
       <div className="h-[200px] w-[200px] rounded-[50%] bg-white flex justify-center items-center">
         <h1 className="text-3xl font-bold ml-4">Transaction Dashboard</h1>
       </div>
       <div className="flex w-[90%] lg:w-[60%] justify-between">
-        <div className="bg-yellow-300 rounded-2xl h-[40px] w-[50%] lg:w-[20%]">
+        <div className="bg-primary rounded-2xl h-[40px] w-[50%] lg:w-[25%]">
           <input
             placeholder="Search transaction"
             type="text"
-            className="placeholder-gray-700 placeholder:font-semibold bg-transparent w-full outline-none pl-5 h-full"
+            className="placeholder-gray-700 placeholder:font-semibold bg-transparent w-full outline-none px-5 h-full"
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
             }}
           />
         </div>
-        <div className="bg-yellow-300 rounded-2xl h-[40px] w-[40%] lg:w-[20%]">
+        <div className="bg-primary rounded-2xl h-[40px] w-[40%] lg:w-[20%]">
           <select
             className="w-full bg-transparent h-full pl-5 font-semibold text-gray-700 outline-none"
             value={month}
@@ -103,11 +95,14 @@ const Home = () => {
           </select>
         </div>
       </div>
-      <DataTable tableData={data.tableData} />
-      <Statistics month={months[month]} stats={data.stats} />
-      <BarChart barChartData={data.barChartData} />
-      <hr className="border-2 border-gray-500 w-full my-2" />
-      <PieChart pieChartData={data.pieChartData} />
+      <DataTable
+        tableData={tableData}
+        pagination={pagination}
+        setPagination={setPagination}
+      />
+      <Statistics month={months[month]} stats={statsData} />
+      <BarChart barChartData={barChartData} />
+      <PieChart pieChartData={pieChartData} />
     </div>
   );
 };

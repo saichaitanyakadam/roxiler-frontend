@@ -1,6 +1,8 @@
-const Statistics = ({ month, stats }) => {
+import React from "react";
+
+const Statistics = React.memo(({ month, stats }) => {
   return (
-    <div className="w-[70%] lg:w-[20%]">
+    <div className="w-[70%] lg:w-[30%]">
       <h2 className="text-2xl font-semibold p-4">Statistics - {month}</h2>
       <div className="w-full bg-yellow-200 p-4 rounded-2xl font-semibold">
         <div className="flex">
@@ -18,6 +20,6 @@ const Statistics = ({ month, stats }) => {
       </div>
     </div>
   );
-};
+});
 
 export default Statistics;
