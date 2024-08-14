@@ -24,9 +24,10 @@ const months = {
 const Home = () => {
   const [search, setSearch] = useState("");
   const debounceValue = useDebounce(search);
+  const [loading, setLoading] = useState(true);
 
   const [month, setMonth] = useState(3);
-  const [pagination, setPagination] = useState(0);
+  const [pagination, setPagination] = useState(1);
   const [tableData, setTableData] = useState([]);
   const [statsData, setStatsData] = useState({});
   const [barChartData, setBarChartData] = useState([]);
@@ -34,7 +35,7 @@ const Home = () => {
 
   const getData = useCallback(async () => {
     const { data } = await axios.get(
-      `http://localhost:4500/api/combined-data?month=${month}`
+      `https://roxiler-backend-hx6o.onrender.com/api/combined-data?month=${month}`
     );
     setStatsData(data.statsData[0]);
     setBarChartData(data.barChartData);
@@ -48,9 +49,10 @@ const Home = () => {
   useEffect(() => {
     const getData = async () => {
       const { data } = await axios.get(
-        `http://localhost:4500/api/get-data?month=${month}&pagination=${pagination}&search=${debounceValue}`
+        `https://roxiler-backend-hx6o.onrender.com/api/get-data?month=${month}&search=${debounceValue}`
       );
       setTableData(data);
+      setLoading(false);
     };
     getData();
   }, [month, debounceValue, pagination]);
@@ -80,29 +82,28 @@ const Home = () => {
               setMonth(event.target.value);
             }}
           >
-            <option value={1}>Jan</option>
-            <option value={2}>Feb</option>
-            <option value={3}>Mar</option>
-            <option value={4}>Apr</option>
-            <option value={5}>May</option>
-            <option value={6}>Jun</option>
-            <option value={7}>Jul</option>
-            <option value={8}>Aug</option>
-            <option value={9}>Sep</option>
-            <option value={10}>Oct</option>
-            <option value={11}>Nov</option>
-            <option value={12}>Dec</option>
+            {Object.entries(months).map((month) => (
+              <option key={month[0]} value={month[0]}>
+                {month[1]}
+              </option>
+            ))}
           </select>
         </div>
       </div>
-      <DataTable
-        tableData={tableData}
-        pagination={pagination}
-        setPagination={setPagination}
-      />
-      <Statistics month={months[month]} stats={statsData} />
-      <BarChart barChartData={barChartData} />
-      <PieChart pieChartData={pieChartData} />
+      {loading ? (
+        <div className="text-3xl font-semibold">Loading...</div>
+      ) : (
+        <>
+          <DataTable
+            tableData={tableData}
+            pagination={pagination}
+            setPagination={setPagination}
+          />
+          <Statistics month={months[month]} stats={statsData} />
+          <BarChart barChartData={barChartData} />
+          <PieChart pieChartData={pieChartData} />
+        </>
+      )}
     </div>
   );
 };

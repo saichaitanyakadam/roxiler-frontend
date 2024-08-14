@@ -1,6 +1,6 @@
 const DataTable = ({ tableData, pagination, setPagination }) => {
   const handlePevious = () => {
-    setPagination((prev) => (prev > 0 ? prev - 1 : prev));
+    setPagination((prev) => (prev > 1 ? prev - 1 : prev));
   };
   const handleNext = () => {
     setPagination((prev) =>
@@ -23,7 +23,7 @@ const DataTable = ({ tableData, pagination, setPagination }) => {
         </thead>
         <tbody>
           {tableData
-            .slice(pagination * 10, pagination * 10 + 10)
+            .slice((pagination - 1) * 10, (pagination - 1) * 10 + 10)
             .map((item) => (
               <tr key={item.id}>
                 <td className="border-2 border-slate-500 pl-2">{item.id}</td>
@@ -46,7 +46,7 @@ const DataTable = ({ tableData, pagination, setPagination }) => {
         </tbody>
       </table>
       <div className="flex justify-between">
-        <p>Page No: {pagination + 1}</p>
+        <p>Page No: {pagination}</p>
         <div className="space-x-2">
           <button
             type="button"
